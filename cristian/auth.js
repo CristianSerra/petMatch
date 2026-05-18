@@ -10,26 +10,19 @@ document.getElementById("cadastroForm");
 
 if (cadastroForm) {
 
-cadastroForm.addEventListener(
-"submit",
-async function(e){
+cadastroForm.addEventListener("submit",async function(e){
 
 e.preventDefault();
 
-const email =
-document.getElementById("email").value;
+const email = document.getElementById("email").value;
 
-const login =
-document.getElementById("login").value;
+const login = document.getElementById("login").value;
 
-const senha =
-document.getElementById("senha").value;
+const senha = document.getElementById("senha").value;
 
 if (!senhaRegex.test(senha)) {
 
-alert(
-"Senha deve ter 6+ caracteres e 1 especial"
-);
+    alert("Senha deve ter 6+ caracteres e 1 especial");
 
 return;
 
@@ -37,31 +30,9 @@ return;
 
 try {
 
-const resposta =
-await fetch(
-"./petmatch-api/cadastro.php",
-{
+const resposta = await fetch("./petmatch-api/cadastro.php",{method: "POST",headers: {"Content-Type": "application/json"},body: JSON.stringify({email,login,senha}) } );
 
-method: "POST",
-
-headers: {
-"Content-Type": "application/json"
-},
-
-body: JSON.stringify({
-
-email,
-login,
-senha
-
-})
-
-}
-
-);
-
-const data =
-await resposta.json();
+const data = await resposta.json();
 
 if (!data.success){
 
@@ -72,9 +43,7 @@ return;
 
 alert("Cadastro realizado!");
 
-window.location.replace(
-"./login.html"
-);
+window.location.replace("./login.html");
 
 } catch(error){
 
@@ -103,12 +72,7 @@ if (loginForm) {
 
     try {
 
-      const resposta = await fetch("./petmatch-api/login.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
+      const resposta = await fetch("./petmatch-api/login.php", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({
           login: loginEmail.trim(),
           senha: senha.trim()
@@ -138,8 +102,7 @@ if (loginForm) {
 
 // ===== RECUPERAÇÃO =====
 
-const recuperarForm =
-document.getElementById("recuperarForm");
+const recuperarForm = document.getElementById("recuperarForm");
 
 if (recuperarForm) {
 
@@ -149,29 +112,15 @@ function(e){
 
 e.preventDefault();
 
-const email =
-document.getElementById(
-"emailRecuperar"
-).value;
+const email =document.getElementById("emailRecuperar").value;
 
 // gerar token
-const token =
-Math.random()
-.toString(36)
-.substring(2);
+const token =Math.random().toString(36).substring(2);
 
-localStorage.setItem(
-"resetToken",
-token
-);
+localStorage.setItem("resetToken",token);
 
 // simulação email
-alert(
-
-`Token enviado para ${email}
-(Token simulado: ${token})`
-
-);
+alert(`Token enviado para ${email}(Token simulado: ${token})`);
 
 });
 }
@@ -182,30 +131,15 @@ async function validarSessao(){
 
 try {
 
-const resposta =
-await fetch(
-"./petmatch-api/validar.php",
-{
-credentials: "include"
-}
-);
+const resposta =await fetch("./petmatch-api/validar.php",{credentials: "include"});
 
-const data =
-await resposta.json();
+const data =await resposta.json();
 
-if (!data.logado){
-
-window.location.replace(
-"./login.html"
-);
-
-}
+if (!data.logado){ window.location.replace("./login.html"); }
 
 } catch(error){
 
-window.location.replace(
-"./login.html"
-);
+window.location.replace("./login.html");
 
 }
 
@@ -217,26 +151,13 @@ console.log("logout executado");
 
 try {
 
-const resposta =
-await fetch(
-"./petmatch-api/logout.php",
-{
+const resposta =await fetch("./petmatch-api/logout.php", { method: "POST", credentials: "include" } );
 
-method: "POST",
-
-credentials: "include"
-
-}
-);
-
-const data =
-await resposta.json();
+const data =await resposta.json();
 
 console.log(data);
 
-window.location.replace(
-"./login.html"
-);
+window.location.replace("./login.html");
 
 } catch(error){
 
@@ -249,14 +170,10 @@ error
 
 }
 
-const btnLogout =
-document.getElementById("btnLogout");
+const btnLogout = document.getElementById("btnLogout");
 
 if (btnLogout){
 
-btnLogout.addEventListener(
-"click",
-logout
-);
+btnLogout.addEventListener("click",logout);
 
 }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil do Usuário - Pet Match</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      background:#f4f7fb;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:650px;
+      background:#fff;
+      padding:35px;
+      border-radius:18px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    h1{
+      color:#333;
+      margin-bottom:10px;
+      text-align:center;
+    }
+
+    .subtitle{
+      text-align:center;
+      color:#666;
+      margin-bottom:30px;
+    }
+
+    .photo-preview{
+      width:130px;
+      height:130px;
+      border-radius:50%;
+      background:#e5e7eb;
+      margin:0 auto 15px;
+      overflow:hidden;
+      border:4px solid #dbeafe;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .photo-preview img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:none;
+    }
+
+    .upload-area{
+      text-align:center;
+      margin-bottom:25px;
+    }
+
+    input[type="file"]{
+      display:none;
+    }
+
+    .upload-btn{
+      display:inline-block;
+      background:#2563eb;
+      color:white;
+      padding:10px 18px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .upload-btn:hover{
+      background:#1d4ed8;
+    }
+
+    .form-group{
+      margin-bottom:20px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      color:#333;
+      font-weight:bold;
+    }
+
+    select{
+      width:100%;
+      padding:14px;
+      border:1px solid #ccc;
+      border-radius:10px;
+      font-size:15px;
+      background:#fff;
+    }
+
+    .btn{
+      width:100%;
+      padding:16px;
+      background:#10b981;
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      font-size:17px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+      margin-top:10px;
+    }
+
+    .btn:hover{
+      background:#059669;
+    }
+
+    .error{
+      color:#dc2626;
+      font-size:14px;
+      margin-top:6px;
+      display:none;
+    }
+
+    .success{
+      background:#dcfce7;
+      color:#166534;
+      padding:12px;
+      border-radius:8px;
+      margin-bottom:20px;
+      display:none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <h1>Perfil do Usuário</h1>
+    <p class="subtitle">
+      Preencha suas informações para encontrarmos o pet ideal para você.
+    </p>
+
+    <div class="success" id="successMessage">
+      Perfil salvo com sucesso!
+    </div>
+
+    <form id="profileForm">
+
+      <!-- FOTO -->
+      <div class="upload-area">
+
+        <div class="photo-preview">
+          <img id="previewImage" />
+        </div>
+
+        <label class="upload-btn" for="photoInput">
+          Escolher Foto
+        </label>
+
+        <input type="file" id="photoInput" accept="image/*">
+      </div>
+
+      <!-- MORADIA -->
+      <div class="form-group">
+        <label for="housing">Tipo de Moradia *</label>
+
+        <select id="housing" required>
+          <option value="">Selecione</option>
+          <option value="Apartamento">Apartamento</option>
+          <option value="Casa">Casa</option>
+          <option value="Chácara">Chácara</option>
+        </select>
+
+        <div class="error">Campo obrigatório</div>
+      </div>
+
+      <!-- CRIANÇAS -->
+      <div class="form-group">
+        <label for="children">Possui Crianças? *</label>
+
+        <select id="children" required>
+          <option value="">Selecione</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+
+        <div class="error">Campo obrigatório</div>
+      </div>
+
+      <!-- TEMPO -->
+      <div class="form-group">
+        <label for="time">Tempo Disponível *</label>
+
+        <select id="time" required>
+          <option value="">Selecione</option>
+          <option value="Pouco">Pouco</option>
+          <option value="Médio">Médio</option>
+          <option value="Muito">Muito</option>
+        </select>
+
+        <div class="error">Campo obrigatório</div>
+      </div>
+
+      <!-- ESTILO -->
+      <div class="form-group">
+        <label for="lifestyle">Estilo de Vida *</label>
+
+        <select id="lifestyle" required>
+          <option value="">Selecione</option>
+          <option value="Tranquilo">Tranquilo</option>
+          <option value="Moderado">Moderado</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Aventureiro">Aventureiro</option>
+        </select>
+
+        <div class="error">Campo obrigatório</div>
+      </div>
+
+      <!-- BOTÃO -->
+      <button type="submit" class="btn">
+        Continuar
+      </button>
+
+    </form>
+
+  </div>
+
+  <script>
+
+    // PREVIEW FOTO
+    const photoInput = document.getElementById("photoInput");
+    const previewImage = document.getElementById("previewImage");
+
+    photoInput.addEventListener("change", function(){
+
+      const file = this.files[0];
+
+      if(file){
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+          previewImage.src = e.target.result;
+          previewImage.style.display = "block";
+
+          // salva imagem em base64
+          localStorage.setItem("userPhoto", e.target.result);
+        }
+
+        reader.readAsDataURL(file);
+      }
+
+    });
+
+    // CARREGAR DADOS SALVOS
+    window.onload = function(){
+
+      const savedData = JSON.parse(localStorage.getItem("userProfile"));
+
+      if(savedData){
+
+        document.getElementById("housing").value = savedData.housing;
+        document.getElementById("children").value = savedData.children;
+        document.getElementById("time").value = savedData.time;
+        document.getElementById("lifestyle").value = savedData.lifestyle;
+      }
+
+      const savedPhoto = localStorage.getItem("userPhoto");
+
+      if(savedPhoto){
+        previewImage.src = savedPhoto;
+        previewImage.style.display = "block";
+      }
+
+    }
+
+    // SUBMIT
+    const form = document.getElementById("profileForm");
+
+    form.addEventListener("submit", function(e){
+
+      e.preventDefault();
+
+      const housing = document.getElementById("housing").value;
+      const children = document.getElementById("children").value;
+      const time = document.getElementById("time").value;
+      const lifestyle = document.getElementById("lifestyle").value;
+
+      // VALIDAÇÃO
+      if(
+        !housing ||
+        !children ||
+        !time ||
+        !lifestyle
+      ){
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      // OBJETO
+      const profile = {
+        housing,
+        children,
+        time,
+        lifestyle
+      };
+
+      // SALVA NO LOCAL STORAGE
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify(profile)
+      );
+
+      // FEEDBACK
+      document.getElementById("successMessage").style.display = "block";
+
+      // REDIRECIONAMENTO
+      setTimeout(() => {
+
+        // Página de match
+        window.location.href = "match.html";
+
+      }, 1000);
+
+    });
+
+  </script>
+
+</body>
+</html>

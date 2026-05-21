@@ -5,7 +5,7 @@
   }
 
   // Função para carregar dados do animal
-  async function loadAnimal() {
+  function loadAnimal() {
     try {
       const animalId = getAnimalIdFromUrl();
       if (!animalId) {
@@ -13,12 +13,10 @@
         return;
       }
 
-      // Carregar o JSON
-      const response = await fetch('../../data/animals.json');
-      const animals = await response.json();
-
+      const storedPets = localStorage.getItem("matchedAnimals");
+      pets = JSON.parse(storedPets);
       // Encontrar o animal
-      const animal = animals.find(a => a.id === animalId);
+      const animal = pets.find(a => a.id === animalId);
       if (!animal) {
         window.location.href = 'index.html';
         return;
@@ -43,15 +41,15 @@
 
     // Badge de match
     const badgeEl = document.getElementById('matchBadge');
-    if (animal.matchScore >= 85) {
+    if (animal.match >= 85) {
       badgeEl.className = 'match-badge-detalhe super';
       badgeEl.textContent = '⭐ SUPER MATCH';
-    } else if (animal.matchScore >= 70) {
+    } else if (animal.match >= 70) {
       badgeEl.className = 'match-badge-detalhe bom';
-      badgeEl.textContent = `✓ ${animal.matchScore}%`;
+      badgeEl.textContent = `✓ ${animal.match}%`;
     } else {
       badgeEl.className = 'match-badge-detalhe padrao';
-      badgeEl.textContent = `${animal.matchScore}%`;
+      badgeEl.textContent = `${animal.match}%`;
     }
 
     // Info básica

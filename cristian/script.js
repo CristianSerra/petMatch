@@ -25,37 +25,7 @@ function showToast(mensagem) {
 function getClassificacao(pct) {
   if (pct >= 90) return { texto: "⭐ Super Match", classe: "super" };
   if (pct >= 70) return { texto: "✓ Bom Match",   classe: "bom"   };
-  return           { texto: "Match",                classe: "padrao" };
-}
-
-// --- Renderizar galeria ---
-async function renderPets(lista = []) {
-  galeria.innerHTML = "";
-
-  if (lista.length === 0) {
-    galeria.innerHTML = `
-      <div class="estado-vazio">
-        <span class="vazio-icon">🐾</span>
-        <p>Nenhum pet encontrado com esses filtros.</p>
-        <small>Tente ajustar os filtros acima.</small>
-      </div>`;
-    resultadosInfo.textContent = "";
-    return;
-  }
-
-  resultadosInfo.textContent = `${lista.length} ${lista.length > 1 ? 'pets encontrados' : 'pet encontrado'}`;
-  
-  lista
-    .sort((a, b) => b.matchScore - a.matchScore)
-    .forEach(animal => {
-      galeria.appendChild(renderCard(animal));
-    });
-
-  galeria.querySelectorAll(".btn-fav, .btn-fav-card").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  });
+  return           { texto: "Match",             classe: "padrao" };
 }
 
 // --- Favoritar ---
@@ -120,9 +90,7 @@ function aplicarFiltros() {
 }
 
 // Listeners dos selects
-document.querySelectorAll("select").forEach(select => {
-  select.addEventListener("change", aplicarFiltros);
-});
+document.querySelectorAll("select").forEach(select => {  select.addEventListener("change", aplicarFiltros);});
 
 // Botão limpar filtros
 document.getElementById("btnLimpar").addEventListener("click", () => {
@@ -131,21 +99,81 @@ document.getElementById("btnLimpar").addEventListener("click", () => {
   showToast("Filtros limpos!");
 });
 
-// --- Carregamento inicial ---
-fetch('../data/animals.json')
-  .then(response => response.json())
-  .then(data => {
-    pets = data;
+
+// ======================================
+// CARREGA MATCHES SALVOS
+// ======================================
+
+function carregarPets(){
+
+  try {
+    // lê localStorage
+    const storedPets = localStorage.getItem("matchedAnimals");
+    // valida
+    if(!storedPets){
+      galeria.innerHTML = ` <div class="estado-vazio">  <span class="vazio-icon">🐾</span>  <p>Nenhum match encontrado.</p>
+          <small> Preencha seu perfil primeiro.  </small>  </div> `;
+      return;
+    }
+    pets = JSON.parse(storedPets);
+    if(!Array.isArray(pets)){ throw new Error("Formato inválido de matches."); }
     renderPets(pets);
-  })
-  .catch(error => {
-    console.error("Erro ao carregar os dados dos pets:", error);
-    galeria.innerHTML = "<p>Erro ao carregar os pets. Tente novamente mais tarde.</p>";
+  } catch(error){ console.error( "Erro ao carregar matches:",  error );
+    galeria.innerHTML = ` <div class="estado-vazio">  <span class="vazio-icon">⚠️</span>  <p>Erro ao carregar matches.</p>  </div> `;
+  }
+}
+
+function renderPets(lista = []) {
+
+  galeria.innerHTML = "";
+
+  // vazio
+  if (!lista || lista.length === 0) {
+
+    galeria.innerHTML = `
+      <div class="estado-vazio">
+        <span class="vazio-icon">🐾</span>
+        <p>Nenhum pet encontrado.</p>
+        <small>
+          Tente alterar os filtros.
+        </small>
+      </div>
+    `;
+
+    resultadosInfo.textContent = "";
+
+    return;
+  }
+
+  // contador
+  resultadosInfo.textContent = `${lista.length} ${
+      lista.length > 1  ? "pets encontrados"  : "pet encontrado" }`;
+
+  // ordena por match
+  lista.sort((a, b) => {
+
+    const scoreA =  Number(a.match) || 0;
+    const scoreB =  Number(b.match) || 0;
+
+    return scoreB - scoreA;
   });
+
+  // renderiza cards
+  lista.forEach(animal => { galeria.appendChild( renderCard(animal)); });
+
+  // eventos favoritos
+  galeria.querySelectorAll(".btn-fav, .btn-fav-card").forEach(btn => { btn.addEventListener( "click",  (e) => { e.stopPropagation();  } ); });
+}
+
+// ======================================
+// INICIALIZA
+// ======================================
+
+carregarPets();
 
 // by cristian
 function renderCard(animal) {
-  const matchScore = animal.matchScore;
+  const matchScore = animal.match;
   let matchClass = 'padrao';
   let matchText = `${matchScore}%`;
 

@@ -2,7 +2,7 @@
     {
         "email": "gabrielsannttos4@gmail.com",
         "login": "Gabriel",
-        "senha": "111111@"
+        "senha": "123456%"
     },
     {
         "email": "teste@gmail.com",
@@ -13,5 +13,10 @@
         "email": "GG@gmail.com",
         "login": "GG",
         "senha": "333333#"
+    },
+    {
+        "email": "Teste2@gmail.com",
+        "login": "jjjjj",
+        "senha": "333333@"
     }
 ]

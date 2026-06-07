@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Recuperar Senha - PetMatch</title>
+<title>Nova Senha - PetMatch</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
@@ -277,24 +277,50 @@ Recuperação de senha
 
 <div class="auth-card">
 
-<h2>Recuperar senha</h2>
+<h2>Nova senha</h2>
 
 <p class="info-text">
 
-Digite seu email para receber o código de recuperação.
+Digite o token recebido e crie sua nova senha.
 
 </p>
 
-<form id="formRecuperar">
+<form id="formNovaSenha">
 
-<!-- EMAIL -->
+<!-- TOKEN -->
 
 <div class="input-group">
 
 <input
-type="email"
-id="email"
-placeholder="Digite seu email"
+type="text"
+id="token"
+placeholder="Digite o token"
+required
+>
+
+</div>
+
+<!-- NOVA SENHA -->
+
+<div class="input-group">
+
+<input
+type="password"
+id="senha"
+placeholder="Nova senha"
+required
+>
+
+</div>
+
+<!-- CONFIRMAR -->
+
+<div class="input-group">
+
+<input
+type="password"
+id="confirmarSenha"
+placeholder="Confirmar senha"
 required
 >
 
@@ -306,7 +332,7 @@ required
 type="submit"
 class="btn-auth">
 
-Enviar código
+Alterar senha
 
 </button>
 
@@ -330,51 +356,95 @@ Enviar código
 
 <script>
 
+const senhaRegex =
+/^(?=.*[!@#$%^&*]).{6,}$/;
+
 document
-.getElementById("formRecuperar")
+.getElementById("formNovaSenha")
 .addEventListener(
 "submit",
-function(e){
+async function(e){
 
 e.preventDefault();
 
-const email =
-document.getElementById("email").value;
-
-// GERA TOKEN
-
 const token =
-Math.random()
-.toString(36)
-.substring(2,8)
-.toUpperCase();
+document.getElementById("token").value;
 
-// SALVA
+const senha =
+document.getElementById("senha").value;
 
-localStorage.setItem(
-"resetToken",
-token
-);
+const confirmarSenha =
+document.getElementById("confirmarSenha").value;
 
-localStorage.setItem(
-"resetEmail",
-email
-);
+const tokenSalvo =
+localStorage.getItem("resetToken");
 
-// SIMULA ENVIO
+const email =
+localStorage.getItem("resetEmail");
+
+// VALIDA TOKEN
+
+if(token !== tokenSalvo){
+
+alert("Token inválido");
+return;
+
+}
+
+// VALIDA SENHA
+
+if(!senhaRegex.test(senha)){
 
 alert(
-
-`Código enviado!
-
-Token: ${token}`
-
+"Senha precisa ter 6+ caracteres e símbolo"
 );
 
-// REDIRECIONA
+return;
+
+}
+
+// CONFIRMA SENHA
+
+if(senha !== confirmarSenha){
+
+alert("As senhas não coincidem");
+return;
+
+}
+
+// ENVIA PARA PHP
+
+const resposta = await fetch(
+"./petmatch-api/resetar-senha.php",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+email,
+novaSenha:senha
+})
+
+}
+);
+
+const data =
+await resposta.json();
+
+alert(data.message);
+
+if(data.success){
+
+localStorage.removeItem("resetToken");
+localStorage.removeItem("resetEmail");
 
 window.location.href =
-"nova-senha.html";
+"login.html";
+
+}
 
 });
 

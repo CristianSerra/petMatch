@@ -258,3 +258,205 @@ function makeCardClickable(card, animalId) {
     window.location.href = `detalhe.html?id=${animalId}`;
   });
 }
+
+/* ========== SISTEMA DE ABAS ========== */
+
+// Event listeners para os botões de abas
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const tabName = btn.getAttribute('data-tab');
+
+    // Remove classe ativa de todos os botões
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    // Remove classe ativa de todos os conteúdos
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    // Adiciona classe ativa ao botão clicado
+    btn.classList.add('active');
+
+    // Adiciona classe ativa ao conteúdo correspondente
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    // Se for a aba de critérios, renderiza os pets
+    if (tabName === 'match') {
+      renderPetsMatch(pets);
+    }
+  });
+});
+
+/* ========== MATCH ========== */
+
+const galeriaMatch = document.getElementById("galeriaMatch");
+const resultadosInfoMatch = document.getElementById("resultadosInfoMatch");
+const carouselTrack = document.getElementById("carouselTrack");
+const carouselContainer = document.getElementById("carouselContainer");
+const carouselBtnPrev = document.getElementById("carouselBtnPrev");
+const carouselBtnNext = document.getElementById("carouselBtnNext");
+const carouselDots = document.getElementById("carouselDots");
+const carouselCounter = document.getElementById("carouselCounter");
+
+let petsMatchAtual = [];
+let currentCarouselIndex = 0;
+
+// Renderizar pets na aba de match com carrossel
+function renderPetsMatch(lista = []) {
+  carouselTrack.innerHTML = "";
+  carouselDots.innerHTML = "";
+  petsMatchAtual = lista;
+  currentCarouselIndex = 0;
+
+  if (lista.length === 0) {
+    carouselContainer.innerHTML = `
+      <div class="estado-vazio">
+        <span class="vazio-icon">🐾</span>
+        <p>Nenhum pet encontrado com esses filtros.</p>
+        <small>Tente ajustar os filtros acima.</small>
+      </div>`;
+    resultadosInfoMatch.textContent = "";
+    return;
+  }
+
+  resultadosInfoMatch.textContent = `${lista.length} ${lista.length > 1 ? 'pets encontrados' : 'pet encontrado'}`;
+
+  const sortedPets = lista.sort((a, b) => b.matchScore - a.matchScore);
+
+  // Criar cards para o carrossel
+  sortedPets.forEach((animal, index) => {
+    const card = renderCard(animal);
+    carouselTrack.appendChild(card);
+
+    // Criar dots
+    const dot = document.createElement("button");
+    dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+    dot.setAttribute("aria-label", `Ir para pet ${index + 1}`);
+    dot.addEventListener("click", () => goToCarouselSlide(index));
+    carouselDots.appendChild(dot);
+  });
+
+  updateCarouselButtons();
+  updateCarouselCounter();
+}
+
+// Atualizar contador e posição do carrossel
+function updateCarouselCounter() {
+  carouselCounter.textContent = `${currentCarouselIndex + 1} de ${petsMatchAtual.length}`;
+}
+
+// Atualizar estado dos botões
+function updateCarouselButtons() {
+  carouselBtnPrev.disabled = currentCarouselIndex === 0;
+  carouselBtnNext.disabled = currentCarouselIndex === petsMatchAtual.length - 1;
+
+  // Atualizar posição do carrossel
+  carouselTrack.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
+
+  // Atualizar dots
+  document.querySelectorAll(".carousel-dot").forEach((dot, index) => {
+    dot.classList.toggle("active", index === currentCarouselIndex);
+  });
+}
+
+// Ir para um slide específico
+function goToCarouselSlide(index) {
+  currentCarouselIndex = Math.max(0, Math.min(index, petsMatchAtual.length - 1));
+  updateCarouselCounter();
+  updateCarouselButtons();
+}
+
+// Próximo pet
+function nextCarouselSlide() {
+  if (currentCarouselIndex < petsMatchAtual.length - 1) {
+    currentCarouselIndex++;
+    updateCarouselCounter();
+    updateCarouselButtons();
+  }
+}
+
+// Pet anterior
+function prevCarouselSlide() {
+  if (currentCarouselIndex > 0) {
+    currentCarouselIndex--;
+    updateCarouselCounter();
+    updateCarouselButtons();
+  }
+}
+
+// Event listeners para botões do carrossel
+carouselBtnPrev.addEventListener("click", prevCarouselSlide);
+carouselBtnNext.addEventListener("click", nextCarouselSlide);
+
+// Navegação por teclado
+document.addEventListener("keydown", (e) => {
+  const activeTab = document.querySelector(".tab-content.active");
+  if (activeTab.id === "tab-match" && petsMatchAtual.length > 0) {
+    if (e.key === "ArrowLeft") prevCarouselSlide();
+    if (e.key === "ArrowRight") nextCarouselSlide();
+  }
+});
+
+// Aplicar filtros na aba de match
+function aplicarFiltrosMatch() {
+  const tipo = document.getElementById("tipoFiltroMatch").value;
+  const tamanho = document.getElementById("tamanhoFiltroMatch").value;
+  const ambiente = document.getElementById("ambienteFiltroMatch").value;
+  const comportamento = document.getElementById("comportamentoFiltroMatch").value;
+
+  const filtrados = pets.filter(pet => {
+    // Filtro de tipo
+    let passaTipo = tipo === "todos";
+    if (!passaTipo) {
+      if (tipo === "cao") passaTipo = pet.category?.toLowerCase() === "cão";
+      else if (tipo === "gato") passaTipo = pet.category?.toLowerCase() === "gato";
+      else if (tipo === "silvestre") passaTipo = pet.category?.toLowerCase() === "silvestre";
+    }
+
+    // Filtro de tamanho
+    let passaTamanho = tamanho === "todos";
+    if (!passaTamanho) {
+      const tamanhoMapeado = { pequeno: "Pequeno", medio: "Médio", grande: "Grande" };
+      passaTamanho = pet.size === tamanhoMapeado[tamanho];
+    }
+
+    // Filtro de ambiente (pet.environment é um array)
+    let passaAmbiente = ambiente === "todos";
+    if (!passaAmbiente && pet.environment) {
+      if (ambiente === "apartamento") {
+        passaAmbiente = pet.environment.some(a => a.toLowerCase().includes("apartamento"));
+      } else if (ambiente === "casa") {
+        passaAmbiente = pet.environment.some(a => a.toLowerCase().includes("casa"));
+      }
+    }
+
+    // Filtro de comportamento (pet.behaviors é um array)
+    let passaComportamento = comportamento === "todos";
+    if (!passaComportamento && pet.behaviors) {
+      if (comportamento === "calmo") {
+        passaComportamento = pet.behaviors.some(b => b.toLowerCase().includes("calmo") || b.toLowerCase().includes("tranquilo"));
+      } else if (comportamento === "ativo") {
+        passaComportamento = pet.behaviors.some(b => b.toLowerCase().includes("ativo") || b.toLowerCase().includes("alegre") || b.toLowerCase().includes("brincalhão"));
+      }
+    }
+
+    return passaTipo && passaTamanho && passaAmbiente && passaComportamento;
+  });
+
+  renderPetsMatch(filtrados);
+}
+
+// Event listeners para filtros de match
+document.querySelectorAll("#tipoFiltroMatch, #tamanhoFiltroMatch, #ambienteFiltroMatch, #comportamentoFiltroMatch").forEach(select => {
+  select.addEventListener("change", aplicarFiltrosMatch);
+});
+
+// Botão limpar filtros da aba match
+document.getElementById("btnLimparMatch")?.addEventListener("click", () => {
+  document.getElementById("tipoFiltroMatch").value = "todos";
+  document.getElementById("tamanhoFiltroMatch").value = "todos";
+  document.getElementById("ambienteFiltroMatch").value = "todos";
+  document.getElementById("comportamentoFiltroMatch").value = "todos";
+  aplicarFiltrosMatch();
+  showToast("Filtros limpos!");
+});

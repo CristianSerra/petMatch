@@ -281,7 +281,7 @@ Recuperação de senha
 
 <p class="info-text">
 
-Digite seu email para receber o código de recuperação.
+Digite seu email para continuar a recuperação da senha.
 
 </p>
 
@@ -306,7 +306,7 @@ required
 type="submit"
 class="btn-auth">
 
-Enviar código
+Continuar
 
 </button>
 
@@ -339,39 +339,24 @@ function(e){
 e.preventDefault();
 
 const email =
-document.getElementById("email").value;
+document.getElementById("email")
+.value
+.trim();
 
-// GERA TOKEN
+if(!email){
 
-const token =
-Math.random()
-.toString(36)
-.substring(2,8)
-.toUpperCase();
-
-// SALVA
-
-localStorage.setItem(
-"resetToken",
-token
+alert(
+"Informe um email."
 );
+
+return;
+
+}
 
 localStorage.setItem(
 "resetEmail",
 email
 );
-
-// SIMULA ENVIO
-
-alert(
-
-`Código enviado!
-
-Token: ${token}`
-
-);
-
-// REDIRECIONA
 
 window.location.href =
 "nova-senha.html";

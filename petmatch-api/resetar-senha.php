@@ -2,104 +2,71 @@
 
 header("Content-Type: application/json");
 
-$data =
-json_decode(
-file_get_contents("php://input"),
-true
+require_once "conexao.php";
+
+$data = json_decode(
+    file_get_contents("php://input"),
+    true
 );
 
-$email =
-strtolower(
-trim($data["email"] ?? "")
-);
+$email = trim($data["email"] ?? "");
+$dataNascimento = trim($data["dataNascimento"] ?? "");
+$novaSenha = trim($data["novaSenha"] ?? "");
 
-$novaSenha =
-trim($data["novaSenha"] ?? "");
+try {
 
-$arquivo =
-__DIR__ . "/data/usuarios.json";
+    $sql = "
+        SELECT id
+        FROM users
+        WHERE email = :email
+        AND birth_date = :birth_date
+    ";
 
-if (!file_exists($arquivo)) {
+    $stmt = $pdo->prepare($sql);
 
-echo json_encode([
+    $stmt->execute([
+        ":email" => $email,
+        ":birth_date" => $dataNascimento
+    ]);
 
-"success" => false,
-"message" => "Arquivo não encontrado"
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-]);
+    if (!$usuario) {
 
-exit;
+        echo json_encode([
+            "success" => false,
+            "message" => "Data de nascimento inválida"
+        ]);
 
-}
+        exit;
+    }
 
-$usuarios =
-json_decode(
-file_get_contents($arquivo),
-true
-);
+    $senhaHash = password_hash(
+        $novaSenha,
+        PASSWORD_DEFAULT
+    );
 
-if (!is_array($usuarios)) {
+    $update = $pdo->prepare("
+        UPDATE users
+        SET senha = :senha
+        WHERE id = :id
+    ");
 
-echo json_encode([
+    $update->execute([
+        ":senha" => $senhaHash,
+        ":id" => $usuario["id"]
+    ]);
 
-"success" => false,
-"message" => "JSON inválido"
+    echo json_encode([
+        "success" => true,
+        "message" => "Senha alterada com sucesso"
+    ]);
 
-]);
+} catch (Exception $e) {
 
-exit;
-
-}
-
-$usuarioEncontrado = false;
-
-for ($i = 0; $i < count($usuarios); $i++) {
-
-$emailSalvo =
-strtolower(
-trim($usuarios[$i]["email"])
-);
-
-if ($emailSalvo === $email) {
-
-$usuarios[$i]["senha"] = $novaSenha;
-
-$usuarioEncontrado = true;
-
-break;
-
-}
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 
 }
-
-if (!$usuarioEncontrado) {
-
-echo json_encode([
-
-"success" => false,
-"message" => "Usuário não encontrado",
-"emailRecebido" => $email
-
-]);
-
-exit;
-
-}
-
-file_put_contents(
-
-$arquivo,
-
-json_encode(
-$usuarios,
-JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-)
-
-);
-
-echo json_encode([
-
-"success" => true,
-"message" => "Senha alterada"
-
-]);

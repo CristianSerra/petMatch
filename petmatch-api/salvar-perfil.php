@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION["usuario_id"])) {
+if (!isset($_SESSION["user_id"])) {
 
     echo json_encode([
         "success" => false,
@@ -31,7 +31,7 @@ try {
         exit;
     }
 
-    $usuario_id = $_SESSION["usuario_id"];
+    $usuario_id = $_SESSION["user_id"];
 
     $housing = trim($dados["housing"] ?? "");
     $children = trim($dados["children"] ?? "");

@@ -324,14 +324,6 @@ required>
     required>
 </div>
 
-<!-- ENDEREÇO (BASE) -->
-<div class="input-group">
-  <input
-    type="text"
-    id="endereco"
-    placeholder="Endereço (opcional ou complemento)">
-</div>
-
 <!-- CEP -->
 <div class="input-group">
   <input
@@ -439,54 +431,6 @@ Entrar
 
 <script src="auth.js"></script>
 
-<script>
-
-/* VALIDAÇÃO EXTRA SENHA */
-
-const cadastroForm =
-document.getElementById("cadastroForm");
-
-if (cadastroForm){
-
-cadastroForm.addEventListener(
-"submit",
-function(e){
-
-const senha =
-document.getElementById("senha").value;
-
-const confirmar =
-document.getElementById("confirmarSenha").value;
-
-const regex =
-/^(?=.*[!@#$%^&*]).{6,}$/;
-
-if (!regex.test(senha)){
-
-alert(
-"A senha deve ter no mínimo 6 caracteres e 1 caractere especial."
-);
-
-e.preventDefault();
-return;
-
-}
-
-if (senha !== confirmar){
-
-alert(
-"As senhas não coincidem."
-);
-
-e.preventDefault();
-return;
-
-}
-
-});
-}
-
-</script>
 
 </body>
 

@@ -281,7 +281,7 @@ Recuperação de senha
 
 <p class="info-text">
 
-Digite o token recebido e crie sua nova senha.
+Digite sua data de nascimento e crie sua nova senha.
 
 </p>
 
@@ -291,13 +291,12 @@ Digite o token recebido e crie sua nova senha.
 
 <div class="input-group">
 
+<div class="input-group">
 <input
-type="text"
-id="token"
-placeholder="Digite o token"
+type="date"
+id="dataNascimento"
 required
 >
-
 </div>
 
 <!-- NOVA SENHA -->
@@ -365,86 +364,101 @@ document
 "submit",
 async function(e){
 
-e.preventDefault();
+    e.preventDefault();
 
-const token =
-document.getElementById("token").value;
+    const dataNascimento =
+    document.getElementById("dataNascimento").value;
 
-const senha =
-document.getElementById("senha").value;
+    const senha =
+    document.getElementById("senha").value;
 
-const confirmarSenha =
-document.getElementById("confirmarSenha").value;
+    const confirmarSenha =
+    document.getElementById("confirmarSenha").value;
 
-const tokenSalvo =
-localStorage.getItem("resetToken");
+    const email =
+    localStorage.getItem("resetEmail");
 
-const email =
-localStorage.getItem("resetEmail");
+    if (!email){
 
-// VALIDA TOKEN
+        alert("E-mail não encontrado. Solicite a recuperação novamente.");
 
-if(token !== tokenSalvo){
+        window.location.href =
+        "recuperar-senha.html";
 
-alert("Token inválido");
-return;
+        return;
 
-}
+    }
 
-// VALIDA SENHA
+    // VALIDA SENHA
 
-if(!senhaRegex.test(senha)){
+    if(!senhaRegex.test(senha)){
 
-alert(
-"Senha precisa ter 6+ caracteres e símbolo"
-);
+        alert(
+            "A senha precisa ter pelo menos 6 caracteres e um símbolo especial."
+        );
 
-return;
+        return;
 
-}
+    }
 
-// CONFIRMA SENHA
+    // CONFIRMA SENHA
 
-if(senha !== confirmarSenha){
+    if(senha !== confirmarSenha){
 
-alert("As senhas não coincidem");
-return;
+        alert("As senhas não coincidem.");
 
-}
+        return;
 
-// ENVIA PARA PHP
+    }
 
-const resposta = await fetch(
-"./petmatch-api/resetar-senha.php",
-{
-method:"POST",
+    try {
 
-headers:{
-"Content-Type":"application/json"
-},
+        const resposta =
+        await fetch(
+            "./petmatch-api/resetar-senha.php",
+            {
+                method: "POST",
 
-body:JSON.stringify({
-email,
-novaSenha:senha
-})
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-}
-);
+                body: JSON.stringify({
 
-const data =
-await resposta.json();
+                    email: email,
+                    dataNascimento: dataNascimento,
+                    novaSenha: senha
 
-alert(data.message);
+                })
 
-if(data.success){
+            }
+        );
 
-localStorage.removeItem("resetToken");
-localStorage.removeItem("resetEmail");
+        const data =
+        await resposta.json();
 
-window.location.href =
-"login.html";
+        alert(data.message);
 
-}
+        if(data.success){
+
+            localStorage.removeItem(
+                "resetEmail"
+            );
+
+            window.location.href =
+            "login.html";
+
+        }
+
+    } catch(error){
+
+        console.error(error);
+
+        alert(
+            "Erro ao conectar ao servidor."
+        );
+
+    }
 
 });
 

@@ -5,25 +5,21 @@ session_start();
 header("Content-Type: application/json");
 
 if (
-
-isset($_SESSION["usuario"])
-
+    isset($_SESSION["user_id"])
 ){
 
-echo json_encode([
-
-"logado" => true,
-"usuario" =>
-$_SESSION["usuario"]
-
-]);
+    echo json_encode([
+        "logado" => true,
+        "usuario" => [
+            "id" => $_SESSION["user_id"],
+            "login" => $_SESSION["user_login"]
+        ]
+    ]);
 
 } else {
 
-echo json_encode([
-
-"logado" => false
-
-]);
+    echo json_encode([
+        "logado" => false
+    ]);
 
 }

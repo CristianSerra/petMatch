@@ -5,8 +5,7 @@ const senhaRegex =
 
 // ===== CADASTRO =====
 
-const cadastroForm =
-document.getElementById("cadastroForm");
+const cadastroForm = document.getElementById("cadastroForm");
 
 if (cadastroForm) {
 
@@ -69,7 +68,7 @@ if (loginForm) {
 
     const loginEmail = document.getElementById("loginEmail").value;
     const senha = document.getElementById("loginSenha").value;
-
+    localStorage.clear();
     try {
 
       const resposta = await fetch("./petmatch-api/login.php", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",

@@ -264,8 +264,7 @@
     });
 
     // CARREGAR DADOS SALVOS
-    window.onload = function(){
-
+    window.onload = async function(){
       const savedData = JSON.parse(localStorage.getItem("userProfile"));
 
       if(savedData){
@@ -298,6 +297,16 @@
       time: document.getElementById("time").value,
       lifestyle: document.getElementById("lifestyle").value
     };
+    localStorage.setItem( "userProfile", JSON.stringify(profile) );
+
+    try {
+      const resposta = await fetch( "http://localhost/PetMatch/petmatch-api/salvar-perfil.php", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) } );  
+      const saida = await resposta.text();  
+      console.log(saida);
+    } catch(error){
+        console.error(error);
+        alert("Erro ao salvar perfil.");
+    }
 
   try {
 

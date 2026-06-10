@@ -103,6 +103,40 @@ document.getElementById("btnLimpar").addEventListener("click", () => {
 // ======================================
 // CARREGA MATCHES SALVOS
 // ======================================
+async function carregarPerfil() {
+
+    try {
+        const response = await fetch( "http://localhost/PetMatch/petmatch-api/carregar-perfil.php" );
+        const data = await response.json();
+
+        if (!data.success) {
+            console.log(data.message);
+            return;
+        }
+
+        localStorage.setItem( "userProfile", JSON.stringify(data.profile) );
+        console.log( "Perfil salvo no localStorage:", data.profile );
+
+    } catch (error) {
+        console.error( "Erro ao carregar perfil:", error );
+    }
+}
+
+async function verificarmatch() {
+  try {
+    const profile = JSON.parse(localStorage.getItem("userProfile"));
+    if (profile) {
+      const response = await fetch( "http://localhost/cristian/petmatch-api/match-animals.php", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) } );
+      const data = await response.json();
+      localStorage.setItem( "matchedAnimals", JSON.stringify(data.animals) );
+    }
+    carregarPets();
+  } catch(error){
+
+    console.error(error);
+    alert("Erro ao buscar matches.");
+  }
+}
 
 function carregarPets(){
 
@@ -168,8 +202,14 @@ function renderPets(lista = []) {
 // ======================================
 // INICIALIZA
 // ======================================
-
-carregarPets();
+window.onload = async function(){
+  const storedPerfil = localStorage.getItem("userProfile");
+    // valida
+  if(!storedPerfil){
+       await carregarPerfil();
+  }
+  await verificarmatch();
+}
 
 // by cristian
 function renderCard(animal) {

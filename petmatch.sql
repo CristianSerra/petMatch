@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 21/05/2026 às 13:31
+-- Tempo de geração: 10/06/2026 às 15:20
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -106,6 +106,53 @@ INSERT INTO `animals` (`id`, `name`, `category`, `species`, `breed`, `age`, `sex
 ('animal-049', 'Koda', 'Silvestre', 'Tucano', 'Tucano', '4 anos', 'Macho', 'Médio', 0, '\"SUPER MATCH\"', '[\"Fazenda\",\"S\\u00edtio\"]', '[\"Curioso\",\"Brincalh\\u00e3o\",\"T\\u00edmido\"]', '[\"N\\u00e3o gosta de gatos\",\"Casa com Quintal\"]', '[\"Vermifugado\",\"Castrado\",\"Vacinado\"]', 'Koda é um animal de personalidade curioso e se adapta bem a ambientes fazenda.', 'Encontrado em um parque, foi resgatado com um ferimento leve.', '[\"https:\\/\\/s2.glbimg.com\\/shVyfsOkEsvzsdRQWbutCuMJrxs=\\/400x350\\/top\\/e.glbimg.com\\/og\\/ed\\/f\\/original\\/2013\\/12\\/03\\/como_criar_tucano.jpg\"]', 'Ana Clara', '(11) 98648-4001', 'koda@petmatch.org'),
 ('animal-050', 'Teddy', 'Silvestre', 'Furão', 'Furão', '2 anos', 'Macho', 'Pequeno', 0, '[]', '[\"Apartamento\",\"Casa com Quintal\"]', '[\"Ativo\",\"Carinhoso\",\"Protetor\"]', '[\"Aceita gatos\",\"Casa com Quintal\"]', '[\"Castrado\",\"Vacinado\",\"Vermifugado\"]', 'Teddy é um animal de personalidade ativo e se adapta bem a ambientes apartamento.', 'Encontrado em um bosque, foi resgatado com muita fome.', '[\"https:\\/\\/clinicapetmarket.com.br\\/wp-content\\/uploads\\/2021\\/05\\/capa-blog.png\"]', 'Gustavo Lima', '(11) 97210-9903', 'teddy@petmatch.org');
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `perfil_usuario`
+--
+
+CREATE TABLE `perfil_usuario` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `tipo_moradia` varchar(50) DEFAULT NULL,
+  `possui_criancas` enum('Sim','Não') DEFAULT NULL,
+  `tempo_disponivel` varchar(20) DEFAULT NULL,
+  `estilo_vida` varchar(50) DEFAULT NULL,
+  `data_cadastro` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Despejando dados para a tabela `perfil_usuario`
+--
+
+INSERT INTO `perfil_usuario` (`id`, `usuario_id`, `foto`, `tipo_moradia`, `possui_criancas`, `tempo_disponivel`, `estilo_vida`, `data_cadastro`) VALUES
+(1, 1, NULL, 'Apartamento', 'Sim', 'Muito', 'Tranquilo', '2026-06-10 12:46:40'),
+(2, 2, NULL, 'Chácara', 'Sim', 'Muito', 'Ativo', '2026-06-10 12:55:33');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint(20) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  `login` varchar(50) DEFAULT NULL,
+  `birth_date` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Despejando dados para a tabela `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `senha`, `login`, `birth_date`) VALUES
+(1, 'cristian@gmail.com', '$2y$10$i2/mygFvqhL0e2rpBgvj../dD9K/5dYUqSFn.Kmzz0usFVy5pG1Bm', 'cristian', '1976-06-02'),
+(2, 'gabriel@gmail.com', '$2y$10$2Funb7XaPF7OFd3uEEipxe2jSf4DhhNZ28W6s578xUf3SAWH5p76C', 'gabriel', '2003-06-18');
+
 --
 -- Índices para tabelas despejadas
 --
@@ -115,6 +162,46 @@ INSERT INTO `animals` (`id`, `name`, `category`, `species`, `breed`, `age`, `sex
 --
 ALTER TABLE `animals`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `perfil_usuario`
+--
+ALTER TABLE `perfil_usuario`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_perfil_usuario` (`usuario_id`);
+
+--
+-- Índices de tabela `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `perfil_usuario`
+--
+ALTER TABLE `perfil_usuario`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de tabela `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `perfil_usuario`
+--
+ALTER TABLE `perfil_usuario`
+  ADD CONSTRAINT `fk_perfil_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
